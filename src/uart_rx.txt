@@ -1,0 +1,71 @@
+
+module uart_rx(
+input clk, rst, rx_en, rdy_clr, rx, output reg[7:0] data_out, output reg rdy
+    );
+   reg [3:0] counter;
+reg [7:0] data_store;
+reg [3:0] smp;
+parameter start=2'b00;
+parameter data=2'b01;
+parameter stop=2'b10;
+reg [1:0] s;
+always@(posedge clk )
+begin
+if(rst)
+begin
+	rdy<=0;
+	data_out<=0;
+ end
+else if(rdy_clr)
+	rdy<=0;
+	
+	else
+	begin
+	if(rx_en)
+	case(s)
+start:
+	if(rx==0& smp!=4'd15)
+	begin
+	smp<=smp+1'b1;
+end
+else
+    begin
+        if(smp==4'd15)
+        s<=data;
+        smp<=0;
+        counter<=0;
+        data_store<=0;
+    end
+
+data:
+begin
+    smp<=smp+1'b1;
+        if(smp==4'b1000)
+            begin
+                data_store[counter]<=rx;
+                counter<=counter+1'b1;
+            end 
+if(counter==8 && smp==15)
+s<=stop;
+end
+
+stop:
+begin
+    if(smp==15)
+    begin
+        data_out<=data_store;
+        s<=start;
+        rdy<=1'b1;
+        smp<=0;
+    end
+
+    else
+        smp<=smp+1'b1;
+end
+
+default:s<=start;
+endcase
+end
+end
+
+endmodule

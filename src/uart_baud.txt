@@ -1,0 +1,45 @@
+module uart_baud(
+    input clk, rst,
+    output reg tx_en,
+    output reg rx_en
+    );
+
+    reg [6:0] rx_c;      
+    reg [3:0] tx_div;   
+
+    always @(posedge clk) begin
+        if (rst) begin
+            rx_c   <= 0;
+            rx_en  <= 0;
+            tx_div <= 0;
+            tx_en  <= 0;
+        end
+        else begin
+         
+            if (rx_c == 7'd27) begin
+                rx_c  <= 0;
+                rx_en <= 1'b1;
+            end
+            else begin
+                rx_c  <= rx_c + 1'b1;
+                rx_en <= 1'b0;
+            end
+
+          
+            if (rx_en) begin
+                if (tx_div == 4'd15) begin
+                    tx_div <= 0;
+                    tx_en  <= 1'b1;
+                end
+                else begin
+                    tx_div <= tx_div + 1'b1;
+                    tx_en  <= 1'b0;
+                end
+            end
+            else begin
+                tx_en <= 1'b0;
+            end
+        end
+    end
+
+endmodule

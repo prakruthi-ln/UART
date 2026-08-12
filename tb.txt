@@ -1,0 +1,67 @@
+module uart_tb;
+reg clk, rst;
+reg [7:0]data_in;
+reg wr_en;
+reg rdy_clr;
+wire rdy;
+wire busy;
+wire [7:0] data_out;
+
+uart_top dut(
+ clk, rst, wr_en,rdy_clr, data_in, busy,data_out,rdy
+);
+always #5 clk=~clk;
+initial begin
+    {clk,wr_en,data_in,rdy_clr}=0;
+    rst=1;
+    #20 rst=0;
+end
+task send(input [7:0]din);
+    begin
+    @(posedge clk);
+        data_in=din;
+        wr_en=1'b1;
+    @(posedge clk)
+        wr_en=0;
+    end 
+endtask
+
+task clear_rdy;
+    begin
+        @(posedge clk)
+        rdy_clr=1'b1;
+        @(posedge clk)
+        rdy_clr=1'b0;
+    end
+  endtask
+initial begin
+    wait(!rst);
+    send(8'h00);
+    wait(busy);
+    wait(!busy);
+    wait (rdy);
+    $display("all zeros receieved output is %h",data_out);
+    clear_rdy;
+    send(8'hff);
+    wait(busy);
+    wait(!busy);
+    wait(rdy);
+    $display(" all ones receieved %h",data_out);
+    clear_rdy;
+    send(8'haa);
+    wait(busy);
+    wait(!busy);
+    wait(rdy);
+    $display("alternating output receieved is %h", data_out);
+    clear_rdy;
+    send(8'h18);
+    wait(busy);
+    wait(!busy);
+    wait(rdy);
+    $display(" output receieved is %h", data_out);
+    clear_rdy;
+     
+    $finish;
+end
+  
+endmodule

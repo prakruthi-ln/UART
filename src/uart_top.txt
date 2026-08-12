@@ -1,0 +1,11 @@
+module uart_top(
+input clk, rst, wr_en,rdy_clr,input[7:0] data_in,output busy, output [7:0] data_out, output  rdy
+    );
+ wire tx_en;
+ wire rx_en;
+ wire tx;
+ 
+ uart_baud bg (.clk(clk), .rst(rst),.tx_en(tx_en),.rx_en(rx_en));
+ uart_tx ut(.clk(clk), .rst(rst), .wr_en(wr_en),.tx_en(tx_en),.data_in(data_in), .tx(tx), .busy(busy) );
+ uart_rx rt(.clk(clk), .rst(rst), .rx_en(rx_en),.rdy_clr(rdy_clr), .rx(tx), .data_out(data_out),. rdy(rdy));
+endmodule

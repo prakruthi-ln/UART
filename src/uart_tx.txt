@@ -1,0 +1,78 @@
+module uart_tx(
+input clk, rst, wr_en,tx_en, input[7:0] data_in, output reg tx, output reg  busy  );
+    
+    reg [2:0] counter;
+parameter idle=2'b00;
+parameter start=2'b01;
+parameter data=2'b10;
+parameter stop=2'b11;
+reg [1:0] s=idle;
+reg [7:0] store_in;
+
+always@(posedge clk or posedge rst)
+begin
+    if(rst)
+    begin
+        s<=idle;
+        tx=1'b1;
+    end
+else
+    begin
+    case (s)
+ 
+idle:
+           begin
+             if(wr_en)
+               begin
+                counter=0;
+                store_in<=data_in;
+                s<=start;
+               end
+            else
+            begin
+                s<=idle;
+                busy=1'b0;
+                end
+            end
+start:
+        begin
+        busy=1'b1;
+            if(tx_en)
+            begin
+                tx=0;
+                s<=data;
+                end
+        else
+              s<=start;
+        end
+        
+data:
+        begin
+                busy=1'b1;
+        if(tx_en)
+                begin
+                tx<=store_in[counter];
+                    if(counter==3'd7)
+                    s<=stop;
+                    else
+                    counter<=counter+3'b1;
+        end
+        end
+stop:
+    begin
+            busy=1'b1;
+
+         if(tx_en)
+            begin
+                tx=1'b1;
+                s<=idle;
+            end
+    else
+        s<=stop;
+    end
+    default:s<=idle;
+    endcase
+    end
+end
+
+endmodule
