@@ -21,3 +21,6 @@ verified with a plain Verilog testbench.
 ## Planned
 - SystemVerilog/UVM testbench, once covered in coursework (ADLV elective)
 - Revisit back-to-back transmission handling
+
+- ## Waveform
+  <img width="1647" height="1006" alt="Screenshot 2026-07-25 185650" src="https://github.com/user-attachments/assets/3c041097-d179-4ed2-bbb0-50b34ee4bbfc" />
