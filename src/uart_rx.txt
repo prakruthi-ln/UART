@@ -1,4 +1,3 @@
-
 module uart_rx(
 input clk, rst, rx_en, rdy_clr, rx, output reg[7:0] data_out, output reg rdy
     );
@@ -16,11 +15,11 @@ begin
 	rdy<=0;
 	data_out<=0;
  end
-else if(rdy_clr)
+else
+	begin
+	if(rdy_clr)
 	rdy<=0;
 	
-	else
-	begin
 	if(rx_en)
 	case(s)
 start:
