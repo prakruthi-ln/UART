@@ -6,7 +6,6 @@ reg rdy_clr;
 wire rdy;
 wire busy;
 wire [7:0] data_out;
-
 uart_top dut(
  clk, rst, wr_en,rdy_clr, data_in, busy,data_out,rdy
 );
@@ -16,6 +15,7 @@ initial begin
     rst=1;
     #20 rst=0;
 end
+
 task send(input [7:0]din);
     begin
     @(posedge clk);
@@ -34,33 +34,45 @@ task clear_rdy;
         rdy_clr=1'b0;
     end
   endtask
+always @(posedge rdy)
+    $display("t=%0t byte received: %h", $time, data_out);
+    
 initial begin
     wait(!rst);
-    send(8'h00);
+    send(8'h00);//tesing all zeros input
     wait(busy);
     wait(!busy);
     wait (rdy);
-    $display("all zeros receieved output is %h",data_out);
     clear_rdy;
-    send(8'hff);
+    send(8'hff);// testing all ones input
     wait(busy);
     wait(!busy);
     wait(rdy);
-    $display(" all ones receieved %h",data_out);
     clear_rdy;
-    send(8'haa);
+    send(8'haa);//testing alternating input
     wait(busy);
     wait(!busy);
     wait(rdy);
-    $display("alternating output receieved is %h", data_out);
     clear_rdy;
-    send(8'h18);
+    send(8'h18);//random input
     wait(busy);
     wait(!busy);
     wait(rdy);
-    $display(" output receieved is %h", data_out);
     clear_rdy;
-     
+    //testing back to back inputs
+     send(8'hab);
+     wait(busy);
+     wait(!busy);
+     send(8'hcd);
+     wait (busy);
+     wait(!busy);
+     send(8'hef);
+     wait(rdy);
+     clear_rdy;
+     wait(rdy);
+     clear_rdy;
+     wait(rdy);
+     clear_rdy;
     $finish;
 end
   
